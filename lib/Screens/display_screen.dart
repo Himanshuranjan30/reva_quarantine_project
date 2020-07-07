@@ -69,13 +69,31 @@ class _DisplayScreenState extends State<DisplayScreen> {
   FirebaseUser currentuser;
 
   FirebaseAuth auth = FirebaseAuth.instance;
-  List<int> temp = [];
+  List temp = [];
+  List bmp=[];
   String phno;
   int d;
   Future returnuid() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
       currentuser = user;
+    });
+  }
+
+  int a;
+  fetchdata() async {
+    final dbref = FirebaseDatabase.instance.reference().child('${1}');
+
+    dbref.child('temp').once().then((DataSnapshot snap) => {
+          print(snap.value),
+          temp.add(snap.value),
+          print(temp[0])
+        });
+    dbref.child('bmp').once().then((DataSnapshot snap)=>{
+
+      print(snap.value),
+      bmp.add(snap.value),
+
     });
   }
 
@@ -130,158 +148,173 @@ class _DisplayScreenState extends State<DisplayScreen> {
     _generateData();
   }
 
+  bool isloading = false;
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: Firestore.instance
-          .collection('UserData')
-          .document(currentuser.uid.toString())
-          .snapshots(),
-      builder: (context, snapshot) {
-        phno = snapshot.data['phNo'].toString();
+    return isloading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : StreamBuilder(
+            stream: Firestore.instance
+                .collection('UserData')
+                .document(currentuser.uid.toString())
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return CircularProgressIndicator();
 
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Color(0xFF8B81C6),
-            title: Text(
-              'quarantine tracker',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 24,
-              ),
-            ),
-            leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.popAndPushNamed(context, 'welcome_screen');
-                }),
-            actions: <Widget>[
-              IconButton(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    createAlertDialog(context);
-                  })
-            ],
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                SizedBox(
-                  height: 36,
-                ),
-                Center(
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    height: 350,
-                    width: 350,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(width: 4, color: Color(0xFF8B81C6)),
+              phno = snapshot.data['phNo'].toString();
+
+              fetchdata();
+
+              return Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Color(0xFF8B81C6),
+                  title: Text(
+                    'quarantine tracker',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Center(
-                          child: Text(
-                            'Temperature',
-                            style: TextStyle(
-                                color: Colors.deepOrange,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold),
-                          ),
+                  ),
+                  leading: IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.popAndPushNamed(context, 'welcome_screen');
+                      }),
+                  actions: <Widget>[
+                    IconButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
                         ),
-                        Expanded(
-                          child: charts.LineChart(
-                            _seriesLineData1,
-                            defaultRenderer: charts.LineRendererConfig(
-                              includePoints: true,
-                              stacked: true,
-                            ),
-                            animate: true,
-                            animationDuration: Duration(seconds: 3),
-                            behaviors: [
-                              charts.ChartTitle('Time',
-                                  behaviorPosition:
-                                      charts.BehaviorPosition.bottom,
-                                  titleOutsideJustification: charts
-                                      .OutsideJustification.middleDrawArea),
-                              charts.ChartTitle('Temperature',
-                                  behaviorPosition:
-                                      charts.BehaviorPosition.start,
-                                  titleOutsideJustification: charts
-                                      .OutsideJustification.middleDrawArea)
+                        onPressed: () {
+                          createAlertDialog(context);
+                        })
+                  ],
+                ),
+                body: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 36,
+                      ),
+                      Center(
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          height: 350,
+                          width: 350,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            border:
+                                Border.all(width: 4, color: Color(0xFF8B81C6)),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Center(
+                                child: Text(
+                                  'Temperature',
+                                  style: TextStyle(
+                                      color: Colors.deepOrange,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Expanded(
+                                child: charts.LineChart(
+                                  _seriesLineData1,
+                                  defaultRenderer: charts.LineRendererConfig(
+                                    includePoints: true,
+                                    stacked: true,
+                                  ),
+                                  animate: true,
+                                  animationDuration: Duration(seconds: 3),
+                                  behaviors: [
+                                    charts.ChartTitle('Time',
+                                        behaviorPosition:
+                                            charts.BehaviorPosition.bottom,
+                                        titleOutsideJustification: charts
+                                            .OutsideJustification
+                                            .middleDrawArea),
+                                    charts.ChartTitle('Temperature',
+                                        behaviorPosition:
+                                            charts.BehaviorPosition.start,
+                                        titleOutsideJustification: charts
+                                            .OutsideJustification
+                                            .middleDrawArea)
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 36,
-                ),
-                Center(
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    height: 350,
-                    width: 350,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(width: 4, color: Color(0xFF8B81C6)),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        Center(
-                          child: Text(
-                            'Basic Metabolic Panel',
-                            style: TextStyle(
-                                color: Colors.deepOrange,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 36,
+                      ),
+                      Center(
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          height: 350,
+                          width: 350,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            border:
+                                Border.all(width: 4, color: Color(0xFF8B81C6)),
                           ),
-                        ),
-                        Expanded(
-                          child: charts.LineChart(
-                            _seriesLineData2,
-                            defaultRenderer: charts.LineRendererConfig(
-                              includePoints: true,
-                              stacked: true,
-                            ),
-                            animate: true,
-                            animationDuration: Duration(seconds: 3),
-                            behaviors: [
-                              charts.ChartTitle('Time',
-                                  behaviorPosition:
-                                      charts.BehaviorPosition.bottom,
-                                  titleOutsideJustification: charts
-                                      .OutsideJustification.middleDrawArea),
-                              charts.ChartTitle('BMP',
-                                  behaviorPosition:
-                                      charts.BehaviorPosition.start,
-                                  titleOutsideJustification: charts
-                                      .OutsideJustification.middleDrawArea)
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Center(
+                                child: Text(
+                                  'Basic Metabolic Panel',
+                                  style: TextStyle(
+                                      color: Colors.deepOrange,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Expanded(
+                                child: charts.LineChart(
+                                  _seriesLineData2,
+                                  defaultRenderer: charts.LineRendererConfig(
+                                    includePoints: true,
+                                    stacked: true,
+                                  ),
+                                  animate: true,
+                                  animationDuration: Duration(seconds: 3),
+                                  behaviors: [
+                                    charts.ChartTitle('Time',
+                                        behaviorPosition:
+                                            charts.BehaviorPosition.bottom,
+                                        titleOutsideJustification: charts
+                                            .OutsideJustification
+                                            .middleDrawArea),
+                                    charts.ChartTitle('BMP',
+                                        behaviorPosition:
+                                            charts.BehaviorPosition.start,
+                                        titleOutsideJustification: charts
+                                            .OutsideJustification
+                                            .middleDrawArea)
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 48,
+                              ),
                             ],
                           ),
                         ),
-                        SizedBox(
-                          height: 48,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+              );
+            },
+          );
   }
 }
 

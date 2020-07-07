@@ -8,8 +8,6 @@ class UserDe extends StatefulWidget {
 }
 
 class _UserDeState extends State<UserDe> {
-  
-  
   FirebaseUser currentuser;
 
   FirebaseAuth auth = FirebaseAuth.instance;
@@ -17,49 +15,73 @@ class _UserDeState extends State<UserDe> {
   Future returnuid() async {
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     setState(() {
-      currentuser=user;
+      currentuser = user;
     });
-    
-      
-    
-    
   }
 
   void initState() {
     super.initState();
     returnuid();
-    
   }
-
+  bool isloading=false;
   @override
   Widget build(BuildContext context) {
-    
-    return StreamBuilder(
-            stream: Firestore.instance
-                .collection('UserData')
-                .document(currentuser.uid.toString())
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.active) {
-                return Scaffold(
-
-                  appBar: AppBar(
-                backgroundColor: Color(0xFF8B81C6),
-                title: Text('User details'),),
-
-                body:
-                
-                Column(children: <Widget>[
-                  Text(snapshot.data['name']),
-                  Text(snapshot.data['age'].toString()),
-                  Text(snapshot.data['gender']),
-                  
-                  Text(snapshot.data['address']),
-                  Text(snapshot.data['phNo'].toString()),
-                  Text(snapshot.data['weight'].toString()),
-                  Text(snapshot.data['height'].toString())
-                ]));
-              }
-            });
+    return isloading? Center(child:CircularProgressIndicator()): StreamBuilder(
+        stream: Firestore.instance
+            .collection('UserData')
+            .document(currentuser.uid.toString())
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.active) {
+            if(!snapshot.hasData)
+             setState(() {
+               isloading=true;
+             });
+             
+            return Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Color(0xFF8B81C6),
+                  title: Text('User details'),
+                ),
+                body: Center(
+                  child: Column(children: <Widget>[
+                      SizedBox(height: 60),
+                      Card(
+                                              child: Column(children: <Widget>[
+                        Text(
+                          'Name:' + snapshot.data['name'],
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Age:' + snapshot.data['age'].toString(),
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Gender:' + snapshot.data['gender'],
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Address:' + snapshot.data['address'],
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Phone No:' + snapshot.data['phNo'].toString(),
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Weight:' + snapshot.data['weight'].toString(),
+                          style: TextStyle(fontSize: 30),
+                        ),
+                        Text(
+                          'Height:' + snapshot.data['height'].toString(),
+                          style: TextStyle(fontSize: 30),
+                        )]),
+                        margin: EdgeInsets.all(5),
+                        
+                      )
+                    ]),
+                ));
+          }
+        });
   }
 }
