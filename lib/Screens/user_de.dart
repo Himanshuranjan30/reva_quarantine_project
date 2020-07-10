@@ -38,48 +38,52 @@ class _UserDeState extends State<UserDe> {
                isloading=true;
              });
              
-            return Scaffold(
+            return isloading? Center(child: CircularProgressIndicator(),):Scaffold(
                 appBar: AppBar(
                   backgroundColor: Color(0xFF8B81C6),
                   title: Text('User details'),
                 ),
                 body: Center(
                   child: Column(children: <Widget>[
-                      SizedBox(height: 60),
-                      Card(
-                                              child: Column(children: <Widget>[
-                        Text(
-                          'Name:' + snapshot.data['name'],
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Age:' + snapshot.data['age'].toString(),
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Gender:' + snapshot.data['gender'],
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Address:' + snapshot.data['address'],
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Phone No:' + snapshot.data['phNo'].toString(),
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Weight:' + snapshot.data['weight'].toString(),
-                          style: TextStyle(fontSize: 30),
-                        ),
-                        Text(
-                          'Height:' + snapshot.data['height'].toString(),
-                          style: TextStyle(fontSize: 30),
-                        )]),
-                        margin: EdgeInsets.all(5),
-                        
-                      )
-                    ]),
+                        SizedBox(height: 60),
+                        Card(
+                          
+                          child: Container(
+                             decoration: BoxDecoration(border: Border.all(color:Colors.purple,width: 3)),
+                            child: Column(children: <Widget>[
+                            Text(
+                              'Name:' + snapshot.data['name'],
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            Text(
+                              'Age:' + snapshot.data['age'].toString(),
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            Text(
+                              'Gender:' + snapshot.data['gender'],
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            Text(
+                              'Address:' + snapshot.data['address'],
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            Text(
+                              'Phone No:' + snapshot.data['phNo'].toString(),
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            Text(
+                              'Weight:' + snapshot.data['weight'].toString(),
+                              style: TextStyle(fontSize: 30),
+                            ),
+                            Text(
+                              'Height:' + snapshot.data['height'].toString(),
+                              style: TextStyle(fontSize: 30),
+                            )]),
+                          ),
+                          margin: EdgeInsets.all(5),
+                          
+                        )
+                      ]),
                 ));
           }
         });
